@@ -1,0 +1,28 @@
+{
+  "name": "codeshelf-opensource",
+  "version": "1.0.0",
+  "description": "Open-Source Community Programming Repository & Subject Library",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "keywords": [
+    "open-source",
+    "programming",
+    "subjects",
+    "code-library",
+    "c",
+    "python",
+    "java",
+    "sql"
+  ],
+  "author": "Open Source Community",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "sqlite3": "^5.1.7"
+  }
+}

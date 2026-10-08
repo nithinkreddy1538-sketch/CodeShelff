@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeShelf - Open Source Program Repository</title>
+  
+  <!-- Inter & JetBrains Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Prism.js Dark Theme for Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  
+  <!-- CodeShelf Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="brand" onclick="backToAllFolders(event)">
+        <div class="brand-icon">&lt;/&gt;</div>
+        <div class="brand-text">
+          <span>CodeShelf</span>
+          <span class="badge-open-source">Repository</span>
+        </div>
+      </a>
+
+      <!-- Global Search for Folders -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          id="globalSearch" 
+          placeholder="Search folders or programs..." 
+          autocomplete="off"
+        >
+        <span class="search-kbd">Ctrl+K</span>
+      </div>
+
+      <!-- Admin Button Beside Search Bar -->
+      <div class="nav-actions">
+        <a href="admin.html" class="btn btn-secondary btn-sm" id="btnAdminNavbar" title="Admin Portal" style="font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+          <span>⚙️</span>
+          <span>Admin</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content Layout: Direct Folder Grid View -->
+  <main class="main-layout" style="padding-top: 28px;">
+    <!-- View 1: Created Folders Shown Directly -->
+    <section id="startFoldersView">
+      <!-- Grid of Created Folders (Directly displayed) -->
+      <div class="folders-grid" id="foldersContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- View 2: Active Folder Programs (Clean Line-by-Line List View) -->
+    <section id="activeFolderView" style="display: none;">
+      <!-- Minimal Folder Header -->
+      <div class="folder-header-compact">
+        <button class="btn btn-secondary btn-sm" onclick="backToAllFolders(event)">
+          <span>← Back to Folders</span>
+        </button>
+        <span class="folder-title-compact" id="activeFolderTitle">📁 Folder</span>
+      </div>
+
+      <!-- Programs inside Active Folder (Rendered Line by Line) -->
+      <div class="programs-grid line-by-line" id="folderProgramsContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal: View Program Details -->
+  <div class="modal-overlay" id="viewProgramModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <div class="card-badges" style="margin-bottom: 6px;">
+            <span class="badge-subject" id="viewModalSubject">Subject</span>
+            <span class="badge-folder" id="viewModalFolder" style="display: none;">📁 Folder</span>
+            <span class="badge-lang" id="viewModalLang">Language</span>
+          </div>
+          <h2 class="modal-title" id="viewModalTitle">Program Title</h2>
+        </div>
+        <button class="btn-close" title="Close (Esc)">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 16px; line-height: 1.6;" id="viewModalDesc">
+          Program description goes here.
+        </p>
+
+        <!-- Code Block with Syntax Highlighting -->
+        <div class="code-container">
+          <div class="code-toolbar">
+            <span class="code-lang-label">Source Code</span>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-primary btn-sm" id="btnCopyCodeModal">📋 Copy Code</button>
+              <button class="btn btn-outline btn-sm" id="btnDownloadCodeModal">💾 Download</button>
+            </div>
+          </div>
+          <pre class="code-pre"><code id="viewModalCode" class="language-c"></code></pre>
+        </div>
+
+        <!-- Tags -->
+        <div style="margin-top: 18px;">
+          <span style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700; letter-spacing: 0.5px;">Tags:</span>
+          <div class="tags-list" id="viewModalTags"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" id="btnEditProgramModal">✏️ Edit</button>
+        <button class="btn btn-primary btn-sm btn-modal-cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add or Edit Program -->
+  <div class="modal-overlay" id="programModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="programModalHeaderTitle">Add Program to Subject</h2>
+        <button class="btn-close" title="Close (Esc)">&times;</button>
+      </div>
+
+      <form id="programForm">
+        <div class="modal-body">
+          <!-- Subject & Programming Language Row -->
+          <div class="form-row">
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="form-label" style="margin-bottom: 0;" for="progSubject">Subject Category *</label>
+                <button type="button" class="btn btn-outline btn-sm" id="btnQuickAddSubjectFromProg" style="padding: 1px 7px; font-size: 0.72rem;" title="Create a new subject">+ New Subject</button>
+              </div>
+              <select class="form-control" id="progSubject" required>
+                <option value="">Select a Subject...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="form-label" style="margin-bottom: 0;" for="progLang">Programming Language *</label>
+                <button type="button" class="btn btn-outline btn-sm" id="btnToggleCustomLang" style="padding: 1px 7px; font-size: 0.72rem;" title="Type custom language name">+ Custom Lang</button>
+              </div>
+              <select class="form-control" id="progLang" required>
+                <option value="c">C</option>
+                <option value="cpp">C++</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+                <option value="sql">SQL</option>
+                <option value="javascript">JavaScript</option>
+                <option value="typescript">TypeScript</option>
+                <option value="go">Go</option>
+                <option value="rust">Rust</option>
+                <option value="csharp">C#</option>
+                <option value="php">PHP</option>
+                <option value="kotlin">Kotlin</option>
+                <option value="swift">Swift</option>
+                <option value="dart">Dart</option>
+                <option value="ruby">Ruby</option>
+                <option value="html">HTML / CSS</option>
+                <option value="bash">Bash / Shell</option>
+                <option value="__custom__">+ Enter Custom Language...</option>
+              </select>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="progCustomLang" 
+                placeholder="Enter custom language name (e.g. Scala, R, Zig)..." 
+                style="display: none; margin-top: 8px;"
+              >
+            </div>
+          </div>
+
+          <!-- Folder inside Subject -->
+          <div class="form-group" id="progFolderGroup">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="form-label" style="margin-bottom: 0;" for="progFolder">Folder / Topic inside Subject (Optional)</label>
+              <button type="button" class="btn btn-outline btn-sm" id="btnQuickAddFolder" style="padding: 1px 7px; font-size: 0.72rem;" title="Create a new folder in this subject">+ New Folder</button>
+            </div>
+            <select class="form-control" id="progFolder">
+              <option value="">Root / General (No Sub-folder)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="progTitle">Program Title *</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="progTitle" 
+              placeholder="e.g. Binary Search Algorithm, Fibonacci with Memoization..." 
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="progDesc">Question and Problem Statement</label>
+            <textarea 
+              class="form-control" 
+              id="progDesc" 
+              rows="3" 
+              placeholder="Enter question, problem statement, edge cases, input parameters..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="progCode">Source Code * (Tab indentation supported)</label>
+            <textarea 
+              class="form-control code-textarea" 
+              id="progCode" 
+              rows="12" 
+              placeholder="Write or paste your code here..." 
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="progTags">Tags (comma-separated)</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="progTags" 
+              placeholder="recursion, arrays, dynamic-programming, sorting"
+            >
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveProgram">Save Program Permanently</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add New Subject -->
+  <div class="modal-overlay" id="subjectModal">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Create Custom Subject</h2>
+        <button class="btn-close" title="Close (Esc)">&times;</button>
+      </div>
+
+      <form id="subjectForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="subjectName">Subject Name *</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="subjectName" 
+              placeholder="e.g. Computer Networks, Microprocessors, Cloud Computing" 
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="subjectDesc">Description</label>
+            <textarea 
+              class="form-control" 
+              id="subjectDesc" 
+              rows="3" 
+              placeholder="Brief overview of what programs are stored under this subject..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="subjectIcon">Subject Icon</label>
+            <select class="form-control" id="subjectIcon">
+              <option value="📁">📁 Folder</option>
+              <option value="💻">💻 Code</option>
+              <option value="🧠">🧠 Algorithms</option>
+              <option value="🗄️">🗄️ Database</option>
+              <option value="🌐">🌐 Web &amp; Network</option>
+              <option value="⚡">⚡ Performance</option>
+              <option value="🤖">🤖 AI &amp; ML</option>
+              <option value="⚙️">⚙️ Systems</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Subject Permanently</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add New Folder inside Subject -->
+  <div class="modal-overlay" id="folderModal">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Create Folder in Subject</h2>
+        <button class="btn-close" title="Close (Esc)">&times;</button>
+      </div>
+
+      <form id="folderForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="form-label" style="margin-bottom: 0;" for="folderSubject">Target Subject Category (Optional)</label>
+              <button type="button" class="btn btn-outline btn-sm" id="btnToggleManualFolderSubjectModal" style="padding: 1px 7px; font-size: 0.72rem;">+ Type Manual Subject</button>
+            </div>
+            <select class="form-control" id="folderSubject">
+              <option value="">General (Optional)</option>
+              <option value="__custom__">+ Enter Custom / New Subject...</option>
+            </select>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="folderCustomSubject" 
+              placeholder="Enter new subject name (e.g. Operating Systems, AI, Cloud)..." 
+              style="display: none; margin-top: 8px;"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="folderName">Folder Name *</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="folderName" 
+              placeholder="e.g. Unit 1: Arrays, Sorting, Dynamic Programming..." 
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="folderDesc">Folder Description (Optional)</label>
+            <textarea 
+              class="form-control" 
+              id="folderDesc" 
+              rows="2" 
+              placeholder="Brief overview of what programs are inside this folder..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Folder Permanently</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <strong>CodeShelf</strong> — Open Source Programming Knowledge Base &middot; Released under the MIT License.
+      </div>
+      <div>
+        <span>Permanent SQLite Storage &middot; Pure HTML5, CSS3 &amp; Vanilla JS Frontend</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Prism.js Scripts for Syntax Highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+
+  <!-- CodeShelf Application Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeShelf - Admin Dashboard</title>
+  
+  <!-- Inter & JetBrains Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CodeShelf Base Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <style>
+    :root {
+      --admin-green: #2ea043;
+      --admin-green-hover: #3fb950;
+      --admin-orange: #f0883e;
+      --admin-orange-hover: #fa9a55;
+      --admin-bg-sidebar: #010409;
+      --admin-bg-body: #0d1117;
+      --admin-bg-card: #161b22;
+      --admin-border: #30363d;
+    }
+
+    body {
+      background-color: var(--admin-bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    .admin-topbar {
+      background: var(--admin-bg-sidebar);
+      border-bottom: 2px solid var(--admin-green);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-admin {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-admin-icon {
+      background: linear-gradient(135deg, var(--admin-green) 0%, var(--admin-orange) 100%);
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      box-shadow: 0 0 14px rgba(46, 160, 67, 0.4);
+    }
+
+    .admin-badge-pill {
+      background: rgba(240, 136, 62, 0.15);
+      color: var(--admin-orange);
+      border: 1px solid rgba(240, 136, 62, 0.4);
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-left: 8px;
+    }
+
+    /* Admin Workspace with Sidebar */
+    .admin-workspace {
+      display: flex;
+      flex: 1;
+      min-height: calc(100vh - 62px);
+    }
+
+    /* Left Sidebar */
+    .admin-sidebar {
+      width: 260px;
+      background: var(--admin-bg-sidebar);
+      border-right: 1px solid var(--admin-border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 14px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-menu-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      font-weight: 700;
+      margin: 14px 10px 8px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sidebar-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      width: 100%;
+    }
+
+    .sidebar-btn:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+    }
+
+    .sidebar-btn.active {
+      background: rgba(46, 160, 67, 0.15);
+      border-color: rgba(46, 160, 67, 0.4);
+      color: var(--admin-green-hover);
+      border-left: 4px solid var(--admin-green);
+    }
+
+    .sidebar-btn.active .sidebar-icon {
+      color: var(--admin-orange);
+    }
+
+    .sidebar-icon {
+      font-size: 1.1rem;
+    }
+
+    /* Sidebar Stats Card */
+    .sidebar-stats-box {
+      background: rgba(22, 27, 34, 0.9);
+      border: 1px solid rgba(240, 136, 62, 0.3);
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 20px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .stat-val-green {
+      font-weight: 700;
+      color: var(--admin-green-hover);
+      font-family: var(--font-mono);
+    }
+
+    .stat-val-orange {
+      font-weight: 700;
+      color: var(--admin-orange);
+      font-family: var(--font-mono);
+    }
+
+    /* Content Area */
+    .admin-main {
+      flex: 1;
+      padding: 28px 36px;
+      max-width: 1200px;
+    }
+
+    .admin-card {
+      background: var(--admin-bg-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .admin-card-header {
+      border-bottom: 1px solid var(--admin-border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    .admin-card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .admin-card-desc {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+
+    .btn-admin-green {
+      background: var(--admin-green);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+
+    .btn-admin-green:hover {
+      background: var(--admin-green-hover);
+    }
+
+    .btn-admin-orange {
+      background: var(--admin-orange);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+
+    .btn-admin-orange:hover {
+      background: var(--admin-orange-hover);
+    }
+
+    /* Admin Table */
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .admin-table th, .admin-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--admin-border);
+      font-size: 0.85rem;
+    }
+
+    .admin-table th {
+      color: var(--admin-orange);
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+      background: #10141a;
+      font-weight: 700;
+    }
+
+    .admin-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    @media (max-width: 900px) {
+      .admin-workspace {
+        flex-direction: column;
+      }
+      .admin-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--admin-border);
+      }
+      .admin-main {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="admin-topbar">
+    <a href="index.html" class="brand-admin">
+      <div class="brand-admin-icon">&lt;/&gt;</div>
+      <div style="font-weight: 800; font-size: 1.15rem; color: #fff;">
+        CodeShelf <span class="admin-badge-pill">Admin</span>
+      </div>
+    </a>
+
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <a href="index.html" class="btn btn-outline btn-sm" style="color: var(--admin-orange); border-color: var(--admin-orange);">
+        <span>👁️</span>
+        <span>View Live Site (index.html)</span>
+      </a>
+      <button class="btn btn-secondary btn-sm" id="btnAdminLogout" style="display: none; color: #f85149; border-color: rgba(248, 81, 73, 0.4);">
+        <span>🚪</span>
+        <span>Logout</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Admin Authentication Login Section -->
+  <div id="adminLoginSection" style="display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 70px); padding: 24px;">
+    <div style="background: var(--admin-bg-card); border: 1px solid rgba(46, 160, 67, 0.4); border-top: 3px solid var(--admin-green); border-radius: 12px; padding: 32px; width: 100%; max-width: 420px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="font-size: 2.2rem; margin-bottom: 8px;">🛡️</div>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #fff;">Admin Authentication</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">
+          Enter credentials to manage folders and programs.
+        </p>
+      </div>
+
+      <form id="adminLoginForm">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" for="adminUsername">Username</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="adminUsername" 
+            placeholder="Username (Admin)" 
+            required
+            autocomplete="username"
+          >
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" for="adminPassword">Password</label>
+          <input 
+            type="password" 
+            class="form-control" 
+            id="adminPassword" 
+            placeholder="Password (Admin123)" 
+            required
+            autocomplete="current-password"
+          >
+        </div>
+
+        <div style="font-size: 0.78rem; color: var(--admin-orange); margin-bottom: 20px;">
+          Credentials: <strong>Admin</strong> / <strong>Admin123</strong>
+        </div>
+
+        <button type="submit" class="btn-admin-green" style="width: 100%; justify-content: center; padding: 10px; font-size: 0.95rem;">
+          <span>🔓</span>
+          <span>Sign In as Admin</span>
+        </button>
+
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="index.html" style="font-size: 0.82rem; color: var(--text-muted);">
+            ← Back to Public Website
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Workspace: Sidebar + Main Content (Visible only when authenticated) -->
+  <div class="admin-workspace" id="adminWorkspaceSection" style="display: none;">
+    <!-- Left Sidebar -->
+    <aside class="admin-sidebar">
+      <div>
+        <div class="sidebar-menu-title">Management</div>
+        <nav class="sidebar-nav">
+          <button class="sidebar-btn active" id="tabAdminFolders">
+            <span class="sidebar-icon">📁</span>
+            <span>Folders</span>
+          </button>
+          <button class="sidebar-btn" id="tabAdminPrograms">
+            <span class="sidebar-icon">💻</span>
+            <span>Add Programs</span>
+          </button>
+          <button class="sidebar-btn" id="tabAdminSubjects">
+            <span class="sidebar-icon">📚</span>
+            <span>Subjects</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-menu-title" style="margin-top: 24px;">Quick Actions</div>
+        <nav class="sidebar-nav">
+          <a href="index.html" class="sidebar-btn">
+            <span class="sidebar-icon">🌐</span>
+            <span>Client View</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Live Database Stats in Sidebar -->
+      <div class="sidebar-stats-box">
+        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--admin-orange); margin-bottom: 8px;">
+          Live Repository Data
+        </div>
+        <div class="stat-row">
+          <span>📁 Total Folders</span>
+          <span class="stat-val-green" id="dashFoldersCount">0</span>
+        </div>
+        <div class="stat-row">
+          <span>💻 Total Programs</span>
+          <span class="stat-val-orange" id="dashProgramsCount">0</span>
+        </div>
+        <div class="stat-row">
+          <span>📚 Total Subjects</span>
+          <span class="stat-val-green" id="dashSubjectsCount">0</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Panels -->
+    <main class="admin-main">
+
+      <!-- SECTION 1: CREATE & MANAGE FOLDERS -->
+      <section id="panelAdminFolders">
+        <!-- Create Folder Card -->
+        <div class="admin-card" style="border-top: 3px solid var(--admin-green);">
+          <div class="admin-card-header">
+            <h2 class="admin-card-title">
+              <span>📁</span>
+              <span>Create Topic Folder</span>
+            </h2>
+            <p class="admin-card-desc">
+              Folders group programming solutions by topic or unit and display directly on <strong>index.html</strong>.
+            </p>
+          </div>
+
+          <form id="adminCreateFolderForm">
+            <div class="form-group">
+              <label class="form-label" for="dashFolderName">Folder Name *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="dashFolderName" 
+                placeholder="e.g. Unit 1: Memory & Pointers, Sorting Algorithms..." 
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="dashFolderDesc">Folder Description</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="dashFolderDesc" 
+                placeholder="Brief summary of programs inside this folder..."
+              >
+            </div>
+
+            <button type="submit" class="btn-admin-green">
+              <span>📁</span>
+              <span>Create Folder</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Created Folders List Table -->
+        <div class="admin-card" style="border-top: 3px solid var(--admin-orange);">
+          <div class="admin-card-header">
+            <h2 class="admin-card-title">
+              <span>📋</span>
+              <span>All Created Folders (Live on index.html)</span>
+            </h2>
+            <p class="admin-card-desc">
+              Click any folder's open button or delete any folder permanently.
+            </p>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Subject</th>
+                  <th>Folder Name</th>
+                  <th>Description</th>
+                  <th>Programs</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminFoldersTableBody">
+                <!-- Rendered dynamically by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: ADD PROGRAMS INTO FOLDERS -->
+      <section id="panelAdminPrograms" style="display: none;">
+        <div class="admin-card" style="border-top: 3px solid var(--admin-orange);">
+          <div class="admin-card-header">
+            <h2 class="admin-card-title">
+              <span>💻</span>
+              <span>Add Program Code into Folder</span>
+            </h2>
+            <p class="admin-card-desc">
+              Select the subject and target folder. Once saved, it will display on <strong>index.html</strong> inside that folder.
+            </p>
+          </div>
+
+          <form id="adminCreateProgramForm">
+            <div class="form-row">
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label class="form-label" style="margin-bottom: 0;" for="dashProgSubject">Target Subject Category (Optional)</label>
+                  <button type="button" class="btn btn-outline btn-sm" id="btnToggleManualProgSubject" style="padding: 1px 8px; font-size: 0.72rem; color: var(--admin-orange); border-color: rgba(240, 136, 62, 0.4);" title="Type new subject manually">+ Type Manual Subject</button>
+                </div>
+                <select class="form-control" id="dashProgSubject">
+                  <option value="">All Subjects (Optional)</option>
+                  <option value="__custom__">+ Enter Custom / New Subject...</option>
+                </select>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="dashProgCustomSubject" 
+                  placeholder="Enter new subject name (e.g. Operating Systems, AI, Cloud)..." 
+                  style="display: none; margin-top: 8px;"
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="dashProgFolder">Target Folder *</label>
+                <select class="form-control" id="dashProgFolder" required>
+                  <option value="">Select Folder...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="dashProgTitle">Program Title *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="dashProgTitle" 
+                  placeholder="e.g. Binary Search Iterative, Matrix Multiplication..." 
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="dashProgLang">Programming Language *</label>
+                <select class="form-control" id="dashProgLang" required>
+                  <option value="c">C</option>
+                  <option value="cpp">C++</option>
+                  <option value="python">Python</option>
+                  <option value="java">Java</option>
+                  <option value="sql">SQL</option>
+                  <option value="javascript">JavaScript</option>
+                  <option value="go">Go</option>
+                  <option value="rust">Rust</option>
+                  <option value="csharp">C#</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="dashProgDesc">Question and Problem Statement</label>
+              <textarea 
+                class="form-control" 
+                id="dashProgDesc" 
+                rows="2" 
+                placeholder="Enter question and problem statement..."
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="dashProgCode">Source Code * (Tab indentation supported)</label>
+              <textarea 
+                class="form-control code-textarea" 
+                id="dashProgCode" 
+                rows="10" 
+                placeholder="Paste or write code here..." 
+                required
+              ></textarea>
+            </div>
+
+
+
+            <button type="submit" class="btn-admin-orange">
+              <span>💾</span>
+              <span>Save Program into Folder</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Programs List Table -->
+        <div class="admin-card" style="border-top: 3px solid var(--admin-green);">
+          <div class="admin-card-header">
+            <h2 class="admin-card-title">
+              <span>💻</span>
+              <span>All Programs in Database</span>
+            </h2>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Folder</th>
+                  <th>Subject</th>
+                  <th>Lang</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminProgramsTableBody">
+                <!-- Rendered dynamically by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: CUSTOM SUBJECTS -->
+      <section id="panelAdminSubjects" style="display: none;">
+        <div class="admin-card" style="border-top: 3px solid var(--admin-green);">
+          <div class="admin-card-header">
+            <h2 class="admin-card-title">
+              <span>📚</span>
+              <span>Create Custom Subject Category</span>
+            </h2>
+            <p class="admin-card-desc">
+              Add major subject categories (e.g. Operating Systems, Microprocessors, Cloud Computing).
+            </p>
+          </div>
+
+          <form id="adminCreateSubjectForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="dashSubName">Subject Name *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="dashSubName" 
+                  placeholder="e.g. Computer Networks, Microprocessors..." 
+                  required
+                >
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dashSubIcon">Icon</label>
+                <select class="form-control" id="dashSubIcon">
+                  <option value="📁">📁 Folder</option>
+                  <option value="💻">💻 Code</option>
+                  <option value="🧠">🧠 Algorithms</option>
+                  <option value="🗄️">🗄️ Database</option>
+                  <option value="🌐">🌐 Network</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="dashSubDesc">Subject Description</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="dashSubDesc" 
+                placeholder="Brief description..."
+              >
+            </div>
+
+            <button type="submit" class="btn-admin-green">
+              <span>📚</span>
+              <span>Create Subject</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Subjects Table -->
+        <div class="admin-card" style="border-top: 3px solid var(--admin-orange);">
+          <div class="admin-card-header">
+            <h2 class="admin-card-title">
+              <span>📚</span>
+              <span>All Subjects</span>
+            </h2>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Programs</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminSubjectsTableBody">
+                <!-- Rendered dynamically by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
