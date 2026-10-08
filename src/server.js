@@ -603,7 +603,7 @@ app.use((req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`====================================================`);
   console.log(`🚀 CodeShelf Open Source Platform is running!`);
   console.log(`🔗 Local Address: http://localhost:${PORT}`);
